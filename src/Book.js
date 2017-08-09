@@ -4,8 +4,8 @@ class Book extends Component {
   render() {
     const {book} = this.props
     const style = {
-      width: book.width,
-      height: book.height,
+      width: 128,
+      height: 193,
       backgroundImage: book.url
     }
     return (
