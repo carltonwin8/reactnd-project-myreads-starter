@@ -1,10 +1,44 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
+import * as BooksAPI from './BooksAPI'
+import Book from './Book'
+
 //import PropTypes from 'prop-types';
 //import escapeRegExp from 'escape-string-regexp';
 //import sortBy from 'sort-by';
 
 class SearchBooks extends Component {
+  state = {
+    query: '',
+    books: []
+  }
+
+  updateQuery = (s) => {
+    console.log(s);
+    this.setState({query: s.trim()}, this.updateBooks);
+  }
+
+  updateBooks = () => {
+    if (this.state.query.length <= 0) {
+      this.setState({books: []})
+      return
+    }
+    BooksAPI.search(this.state.query,100)
+      .then(rs => {
+        let books = rs.map(r => {
+          let authors = ''
+          if (r.authors) authors = r.authors.join(" & ");
+          else authors = r.publisher;
+          return {
+            id: r.id,
+            title: r.title,
+            authors: authors,
+            url: `url("${r.imageLinks.thumbnail}'")`
+          }})
+          this.setState({books: books})
+      })
+      .catch(e => console.log(e))
+  }
   render() {
     return (
       <div className="search-books">
@@ -19,13 +53,29 @@ class SearchBooks extends Component {
               However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
               you don't find a specific author or title. Every search is limited by search terms.
             */}
-            <input type="text" placeholder="Search by title or author"/>
+            <input
+              type="text"
+              placeholder="Search by title or author"
+              value={this.state.query}
+              onChange={(e) => this.updateQuery(e.target.value)}
+              />
 
           </div>
         </div>
         <div className="search-books-results">
-          <ol className="books-grid"></ol>
+          <ol className="books-grid">
+          {this.state.books.map(book =>
+            <li key={book.id}>
+            <Book
+              book={book}
+              shelf="None"
+              shelfSelect={this.shelfSelect}
+            />
+            </li>
+          )}
+          </ol>
         </div>
+        <p>{this.state.query}</p>
       </div>
     )
   }
