@@ -10,14 +10,14 @@ class ListBooks extends Component {
   state = {
     currentlyReading: [],
     wantToRead: [],
-    read: []
+    read: [],
+    none: []
   }
   componentDidMount = () => {
-    const {update, get} = BooksAPI
-    update({id:"bsId"},"none").then(data => {
+    BooksAPI.update({id:"bsId"},"none").then(data => {
       for (let [shelf, ids] of Object.entries(data)) {
         ids.map(id =>
-          get(id).then(data=> {
+          BooksAPI.get(id).then(data=> {
             this.setState((state) => {
               let book = {
                 id,
@@ -33,6 +33,38 @@ class ListBooks extends Component {
     })
   }
 
+  _updateState = (bookId, toShelf, fromShelf) => {
+    this.setState((state) => {
+      let fromSdata = state[fromShelf]
+      let toSdata = state[toShelf]
+      let fromSnew = []
+      let toSnew = []
+      for (let l=0; l < fromSdata.length; l++) {
+        let book = fromSdata[l]
+        if (book.id === bookId) {
+          if (toShelf !== 'none') toSnew = toSdata.concat(book)
+          fromSnew = fromSdata.filter(b => b.id !== bookId)
+          break
+        }
+      }
+      let stateNew = {}
+      stateNew[fromShelf] = fromSnew
+      stateNew[toShelf] = toSnew
+      return stateNew
+    })
+  }
+
+  shelfSelect = (bookId, toShelf, fromShelf) => {
+    this._updateState(bookId, toShelf, fromShelf)
+    BooksAPI.update({id:bookId},toShelf)
+      .then(r => console.log(r)) // comment out line when not debugging
+      .catch(e => {
+        console.log(`Error! Moving book ID {bookId} from {fromShelf} to {toShelf}.`)
+        console.log(e)
+        this._updateState(bookId, fromShelf, toShelf)
+      })
+  }
+
   render() {
     const {currentlyReading, read, wantToRead} = this.state
     return (
@@ -44,14 +76,20 @@ class ListBooks extends Component {
           <BookShelf
             title="Currently Reading"
             books={currentlyReading}
+            shelf="currentlyReading"
+            shelfSelect={this.shelfSelect}
           />
           <BookShelf
             title="Want to Read"
             books={wantToRead}
+            shelf="wantToRead"
+            shelfSelect={this.shelfSelect}
           />
           <BookShelf
             title="Read"
             books={read}
+            shelf="read"
+            shelfSelect={this.shelfSelect}
           />
           </div>
         <div className="open-search">

@@ -1,6 +1,13 @@
 import React, {Component} from 'react';
 
 class Book extends Component {
+  constructor(props) {
+    super(props);
+    this.shelfSelect = this.shelfSelect.bind(this);
+  }
+  shelfSelect = (e) => {
+    this.props.shelfSelect(e.target.id, e.target.value)
+  }
   render() {
     const {book} = this.props
     const style = {
@@ -13,7 +20,7 @@ class Book extends Component {
         <div className="book-top">
           <div className="book-cover" style={style}></div>
           <div className="book-shelf-changer">
-            <select>
+            <select  value={this.props.shelf} onChange={this.shelfSelect} id={book.id}>
               <option value="none" disabled>Move to...</option>
               <option value="currentlyReading">Currently Reading</option>
               <option value="wantToRead">Want to Read</option>
