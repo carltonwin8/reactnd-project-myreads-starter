@@ -80,7 +80,13 @@ class BooksApp extends React.Component {
             shelfSelect={this.shelfSelect}
             />
         )}/>
-        <Route path="/search" render={({history}) => ( <SearchBooks /> )}/>
+        <Route path="/search" render={({history}) => (
+           <SearchBooks
+             books={this.state}
+             shelfSelect={this.shelfSelect}
+             goBack={() => history.push('/')}
+           />
+         )}/>
       </div>
     )
   }

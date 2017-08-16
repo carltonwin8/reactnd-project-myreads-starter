@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
-
-//import PropTypes from 'prop-types';
-//import escapeRegExp from 'escape-string-regexp';
-//import sortBy from 'sort-by';
 
 class SearchBooks extends Component {
   state = {
     query: '',
     books: []
+  }
+
+  goBack = (e) => {
+    e.preventDefault()
+    if (this.props.goBack) this.props.goBack()
   }
 
   updateQuery = (s) => {
@@ -43,7 +43,7 @@ class SearchBooks extends Component {
     return (
       <div className="search-books">
         <div className="search-books-bar">
-          <Link className="close-search" to="/">Close</Link>
+          <a className="close-search" onClick={this.goBack}>Close</a>
           <div className="search-books-input-wrapper">
             {/*
               NOTES: The search from BooksAPI is limited to a particular set of search terms.
