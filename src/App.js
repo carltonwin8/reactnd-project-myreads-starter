@@ -3,6 +3,7 @@ import {Route} from 'react-router-dom'
 import SearchBooks from './SearchBooks'
 import ListBooks from './ListBooks'
 import * as BooksAPI from './BooksAPI'
+import sortBy from 'sort-by'
 import './App.css'
 
 class BooksApp extends React.Component {
@@ -23,14 +24,16 @@ class BooksApp extends React.Component {
       for (let [shelf, ids] of Object.entries(data)) {
         ids.map(id =>
           BooksAPI.get(id).then(data=> {
+            let book = {
+              id,
+              title: data.title,
+              authors: data.authors.join(" & "),
+              url: `url("${data.imageLinks.thumbnail}'")`
+            }
             this.setState((state) => {
-              let book = {
-                id,
-                title: data.title,
-                authors: data.authors.join(" & "),
-                url: `url("${data.imageLinks.thumbnail}'")`
-              }
-              return new(function () { this[shelf] = state[shelf].concat(book) })()
+              let books = state[shelf].concat(book)
+              books.sort(sortBy('title'))
+              return new(function () { this[shelf] = books })()
             })
           })
         )
@@ -53,8 +56,8 @@ class BooksApp extends React.Component {
         }
       }
       let stateNew = {}
-      stateNew[fromShelf] = fromSnew
-      stateNew[toShelf] = toSnew
+      stateNew[fromShelf] = fromSnew.sort(sortBy('title'))
+      stateNew[toShelf] = toSnew.sort(sortBy('title'))
       return stateNew
     })
   }
@@ -62,7 +65,7 @@ class BooksApp extends React.Component {
   shelfSelect = (bookId, toShelf, fromShelf) => {
     this._updateState(bookId, toShelf, fromShelf)
     BooksAPI.update({id:bookId},toShelf)
-      .then(r => console.log(r)) // comment out line when not debugging
+      //.then(r => console.log(r)) // comment out line when not debugging
       .catch(e => {
         console.log(`Error! Moving book ID {bookId} from {fromShelf} to {toShelf}.`)
         console.log(e)

@@ -2,13 +2,6 @@ import React, {Component} from 'react';
 import Book from './Book'
 
 class BookShelf extends Component {
-  constructor(props) {
-    super(props)
-    this.shelfSelect = this.shelfSelect.bind(this);
-  }
-  shelfSelect = (bookId, shelf) => {
-    this.props.shelfSelect(bookId, shelf, this.props.shelf)
-  }
   render() {
     return (
       <div className="bookshelf">
@@ -20,7 +13,7 @@ class BookShelf extends Component {
               <Book
                 book={book}
                 shelf={this.props.shelf}
-                shelfSelect={this.shelfSelect}
+                shelfSelect={this.props.shelfSelect}
               />
             </li>
           )}

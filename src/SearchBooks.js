@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
+import sortBy from 'sort-by'
 
 class SearchBooks extends Component {
   state = {
@@ -23,18 +24,25 @@ class SearchBooks extends Component {
       this.setState({books: []})
       return
     }
-    BooksAPI.search(this.state.query,100)
+    BooksAPI.search(this.state.query, 100)
       .then(rs => {
+        if (!Array.isArray(rs)) {
+          console.log(rs) // console log error message
+          this.setState({books: []})
+          return
+        }
+        console.log(rs)
         let books = rs.map(r => {
-          let authors = ''
-          if (r.authors) authors = r.authors.join(" & ");
-          else authors = r.publisher;
+          let authors = r.authors ? r.authors.join(" & ") : r.publisher
+          let image = r.imageLinks ? r.imageLinks.thumbnail :
+            "https://dummyimage.com/128x193/000/fff.png&text=Image+Unavailable"
           return {
             id: r.id,
             title: r.title,
             authors: authors,
-            url: `url("${r.imageLinks.thumbnail}'")`
+            url: `url("${image}")`
           }})
+          books.sort(sortBy('title'))
           this.setState({books: books})
       })
       .catch(e => console.log(e))
@@ -75,7 +83,6 @@ class SearchBooks extends Component {
           )}
           </ol>
         </div>
-        <p>{this.state.query}</p>
       </div>
     )
   }
