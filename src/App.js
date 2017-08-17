@@ -17,8 +17,9 @@ class BooksApp extends React.Component {
     currentlyReading: [],
     wantToRead: [],
     read: [],
-    none: []
+    none: []  // use none to store search books
   }
+
   componentDidMount = () => {
     BooksAPI.update({id:"bsId"},"none").then(data => {
       for (let [shelf, ids] of Object.entries(data)) {
@@ -50,8 +51,12 @@ class BooksApp extends React.Component {
       for (let l=0; l < fromSdata.length; l++) {
         let book = fromSdata[l]
         if (book.id === bookId) {
-          if (toShelf !== 'none') toSnew = toSdata.concat(book)
-          fromSnew = fromSdata.filter(b => b.id !== bookId)
+          if (toShelf !== 'none') {
+            if (fromShelf === 'none') book.shelf = toShelf
+            toSnew = toSdata.concat(book)
+          }
+          if (fromShelf === 'none') fromSnew = fromSdata
+          else fromSnew = fromSdata.filter(b => b.id !== bookId)
           break
         }
       }
@@ -61,6 +66,15 @@ class BooksApp extends React.Component {
       return stateNew
     })
   }
+
+  getShelf = (bookId) => {
+    for (var shelf in this.state)
+      if (this.state[shelf].filter(book => book.id === bookId).length > 0)
+        return shelf
+    return "none"
+  }
+
+  updateSearchBooks = (books) => this.setState({none: books}) // use none for search books
 
   shelfSelect = (bookId, toShelf, fromShelf) => {
     this._updateState(bookId, toShelf, fromShelf)
@@ -73,7 +87,6 @@ class BooksApp extends React.Component {
       })
   }
 
-
   render() {
     return (
       <div className="app">
@@ -85,9 +98,11 @@ class BooksApp extends React.Component {
         )}/>
         <Route path="/search" render={({history}) => (
            <SearchBooks
-             books={this.state}
+             getShelf={this.getShelf}
+             updateSearchBooks={this.updateSearchBooks}
              shelfSelect={this.shelfSelect}
-             goBack={() => history.push('/')}
+             books={this.state.none}
+             goBack={() => {this.updateSearchBooks([]); history.push('/')}}
            />
          )}/>
       </div>

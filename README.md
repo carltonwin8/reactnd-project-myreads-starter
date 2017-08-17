@@ -1,7 +1,7 @@
 # React MyReads Project
 
 Repo is used to complete the first assignment in the
-[Udacity Nanodegree Course]().
+[Udacity Nanodegree Course](https://www.udacity.com/course/react-nanodegree--nd019).
 The pre-fork README can be seen
 [here](README-ori.md).
 
