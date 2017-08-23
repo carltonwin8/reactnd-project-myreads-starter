@@ -43,6 +43,10 @@ class SearchBooks extends Component {
       })
       .catch(e => console.log(e))
   }
+
+  componentDidMount() {
+    this.textInput.focus();
+  }
   render() {
     return (
       <div className="search-books">
@@ -61,6 +65,7 @@ class SearchBooks extends Component {
               type="text"
               placeholder="Search by title or author"
               value={this.state.query}
+              ref={ input => this.textInput = input }
               onChange={(e) => this.updateQuery(e.target.value)}
               />
 
